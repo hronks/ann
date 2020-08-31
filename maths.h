@@ -4,20 +4,36 @@
 #include <iostream>
 #include <vector>
 
-template <typename T>
-void add( std::vector <std::vector <T>> & operand1,
-          std::vector <std::vector <T>> & operand2,
-          std::vector <std::vector <T>> & output) {
 
-  for(int i = 0; i < output.size(); ++i)
-    for(int j = 0; j < output[i].size(); ++ j) {
-      output[i][j] = operand1[i][j] + operand2[i][j];
+/// Matrices functions
+
+template <typename T>
+void print(       const std::vector <std::vector <T>> & operand) {
+
+  for(int i = 0; i < operand.size(); ++i) {
+    std::cout<<"{";
+    for(int j = 0; j < operand[i].size(); ++j) {
+      std::cout<<operand[i][j];
+      if(j < operand[i].size() - 1) std::cout<<", ";
+    }
+    std::cout<<"}\n";
+  }
+}
+
+template <typename T>
+void add(         const std::vector <std::vector <T>> & operand1,
+                  const std::vector <std::vector <T>> & operand2,
+                        std::vector <std::vector <T>> & variable) {
+
+  for(int i = 0; i < variable.size(); ++i)
+    for(int j = 0; j < variable[i].size(); ++ j) {
+      variable[i][j] = operand1[i][j] + operand2[i][j];
     }
 }
 
 template <typename T>
-void add( std::vector <std::vector <T>> & variable,
-          std::vector <std::vector <T>> & operand) {
+void add(         const std::vector <std::vector <T>> & operand,
+                        std::vector <std::vector <T>> & variable) {
 
   for(int i = 0; i < variable.size(); ++i)
     for(int j = 0; j < variable[i].size(); ++ j) {
@@ -26,24 +42,28 @@ void add( std::vector <std::vector <T>> & variable,
 }
 
 template <typename T>
-void multiply(  std::vector <std::vector <T>> & operand1,
-                std::vector <std::vector <T>> & operand2,
-                std::vector <std::vector <T>> & output) {
+void multiply(    const std::vector <std::vector <T>> & operand1,
+                  const std::vector <std::vector <T>> & operand2,
+                        std::vector <std::vector <T>> & variable) {
 
-  for(int i = 0; i < operand1.size(); ++i)
-    for(int j = 0; j < operand2[i].size(); ++ j)
+  for(int i = 0; i < variable.size(); ++i)
+    for(int j = 0; j < variable[i].size(); ++ j)
+      variable[i][j] = 0;
+
+  for(int i = 0; i < variable.size(); ++i)
+    for(int j = 0; j < variable[i].size(); ++ j)
       for(int k = 0; k < operand2.size(); ++k) {
-        output[i][j] = operand1[i][k] * operand2[k][j];
+        variable[i][j] += operand1[i][k] * operand2[k][j];
       }
   }
 
 template <typename T>
-void transpose(std::vector <std::vector <T>> & x) {
+void transpose(   const std::vector <std::vector <T>> & operand,
+                        std::vector <std::vector <T>> & variable) {
 
-  for(int i = 0; i < x.size(); ++i)
-    for(int j = 0; j < x[i].size(); ++ j) {
-      x[i][j] = -x[i][j];
-    }
+  for(int i = 0; i < variable.size(); ++i)
+    for(int j = 0; j < variable[i].size(); ++ j)
+      variable[i][j] = operand[j][i];
 }
 
 
