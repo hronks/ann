@@ -22,6 +22,10 @@ int main() {
   print(y);
   print(z);
 
+  transpose <float> (z, x);
+
+  print(x);
+
 
 
 
