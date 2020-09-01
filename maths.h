@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 /// Vector functions
 
@@ -207,7 +208,28 @@ T ReLU(T variable, int d) {
   return 0;
 }
 
+template <typename T>
+T Sigmoid(T variable, int d) {
 
+  T temp = 1 / (1 + exp(- variable));
+
+  if(d == 0) return temp;
+  if(d == 1) return temp*(1-temp);
+
+  return 0;
+}
+
+template <typename T>
+T Binary_crossentropy(  std::vector <T> & operand,
+                        std::vector <T> & actual, int d) {
+
+  T temp = 1 / (1 + exp(- variable));
+
+  if(d == 0) return temp;
+  if(d == 1) return temp*(1-temp);
+
+  return 0;
+}
 
 
 #endif
