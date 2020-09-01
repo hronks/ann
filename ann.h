@@ -25,7 +25,10 @@ struct Dense_layer {
 
   Dense_layer(int inputs, int outputs, T (*funct)(T, int)) {
 
+<<<<<<< HEAD
 //    input.resize(inputs);
+=======
+>>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
     input = NULL;
     pass_back_outbox.resize(inputs);
 
@@ -34,7 +37,10 @@ struct Dense_layer {
     bias.resize(outputs);
     d_output.resize(outputs);
     d_bias.resize(outputs);
+<<<<<<< HEAD
 //    pass_back_inbox.resize(outputs);
+=======
+>>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
     pass_back_inbox = NULL;
 
     weight.resize(outputs);
@@ -111,6 +117,35 @@ struct Dense_layer {
 
 };
 
+<<<<<<< HEAD
+=======
+template <class T>
+struct Network_output {
+
+  std::vector <T> *input;
+  T cost;
+  void (* cost_function)( const std::vector <T> &,
+                          const std::vector <T> &,
+                          T & error,
+                          std::vector <T> & diff);
+  std::vector <T> d_cost;
+
+  Network_output(int inputs, void (*funct)( const std::vector <T> &,
+                                            const std::vector <T> &,
+                                            T & error,
+                                            std::vector <T> & diff)) {
+
+      input = NULL;
+      cost_function = funct;
+      d_cost.resize(inputs);
+  }
+
+  ~Dense_layer() {
+    delete input;
+  }
+
+};
+>>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
 
 
 #endif

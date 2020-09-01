@@ -220,15 +220,20 @@ T Sigmoid(T variable, int d) {
 }
 
 template <typename T>
-T Binary_crossentropy(  std::vector <T> & operand,
-                        std::vector <T> & actual, int d) {
+void Binary_crossentropy( const std::vector <T> & operand,
+                          const std::vector <T> & actual,
+                                T & error,
+                                std::vector <T> & diff) {
+  error = 0;
 
-  T temp = 1 / (1 + exp(- variable));
+  for(int i = 0; i < diff.size(); ++i)
+    diff[i] = (operand[i] - actual[i]) / (operand[i] * (1 - operand[i]));
 
-  if(d == 0) return temp;
-  if(d == 1) return temp*(1-temp);
-
-  return 0;
+  for(int i = 0; i < operand.size(); ++i) {
+    error -= actual[i] * log(operand[i]) +
+      (1 - actual[i]) * log(1 - operand[i]);
+  }
+  error /= operand.size();
 }
 
 

@@ -16,9 +16,16 @@ int main() {
   f = {& ReLU <float>, & ReLU <float>, & ReLU <float>};
 
 
+<<<<<<< HEAD
   Dense_layer <float> l1 (10, 32, & ReLU    <float>);
   Dense_layer <float> l2 (32, 32, & ReLU    <float>);
   Dense_layer <float> l3 (32, 1,  & Sigmoid <float>);
+=======
+  Dense_layer     <float> l1  (10, 32, & ReLU    <float>);
+  Dense_layer     <float> l2  (32, 32, & ReLU    <float>);
+  Dense_layer     <float> l3  (32, 1,  & Sigmoid <float>);
+  Network_output  <float> out (1, & Binary_crossentropy <float>);
+>>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
 
   l1.input = & u;
   l1.pass_back_inbox = & l2.pass_back_outbox;
@@ -29,9 +36,18 @@ int main() {
   l2.randomize_weights(0);
 
   l3.input = & l2.output;
+<<<<<<< HEAD
   l3.pass_back_inbox = & v;
   l3.randomize_weights(0);
 
+=======
+  l3.pass_back_inbox = & out.d_cost;
+  l3.randomize_weights(0);
+
+  out.input = &l3.output;
+
+
+>>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
 
   std::cout<<"\nLAYER 1\n";
   std::cout<<"weight\n"; print(l1.weight);
