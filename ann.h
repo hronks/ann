@@ -3,10 +3,11 @@
 
 #include <iostream>
 #include <vector>
-#include <cstdlib>
+//#include <cstdlib>
 #include <ctime>
 
 #include "maths.h"
+#include "data.h"
 
 template <class T>
 struct Dense_layer {
@@ -25,10 +26,6 @@ struct Dense_layer {
 
   Dense_layer(int inputs, int outputs, T (*funct)(T, int)) {
 
-<<<<<<< HEAD
-//    input.resize(inputs);
-=======
->>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
     input = NULL;
     pass_back_outbox.resize(inputs);
 
@@ -37,15 +34,15 @@ struct Dense_layer {
     bias.resize(outputs);
     d_output.resize(outputs);
     d_bias.resize(outputs);
-<<<<<<< HEAD
-//    pass_back_inbox.resize(outputs);
-=======
->>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
     pass_back_inbox = NULL;
 
     weight.resize(outputs);
     for(int i = 0; i < outputs; ++i)
       weight[i].resize(inputs);
+
+    d_weight.resize(outputs);
+    for(int i = 0; i < outputs; ++i)
+      d_weight[i].resize(inputs);
 
     transpose_weight.resize(inputs);
     for(int i = 0; i < inputs; ++i)
@@ -92,15 +89,13 @@ struct Dense_layer {
 
   void forward() {
 
-    // get input
     multiply(weight, *input, output);
     add(bias, output);
+    d_output = output;
     apply(activation, 0, output);
   }
 
   void backwards() {
-
-    // read back pass inbox
     apply(activation, 1, d_output);
     hadamard(d_output, *pass_back_inbox, d_bias);
     transpose(weight, transpose_weight);
@@ -117,35 +112,75 @@ struct Dense_layer {
 
 };
 
-<<<<<<< HEAD
-=======
 template <class T>
 struct Network_output {
 
   std::vector <T> *input;
+  std::vector <T> *actual;
   T cost;
   void (* cost_function)( const std::vector <T> &,
                           const std::vector <T> &,
                           T & error,
-                          std::vector <T> & diff);
+                          std::vector <T> & diff );
   std::vector <T> d_cost;
 
   Network_output(int inputs, void (*funct)( const std::vector <T> &,
                                             const std::vector <T> &,
                                             T & error,
-                                            std::vector <T> & diff)) {
+                                            std::vector <T> &)) {
 
       input = NULL;
+      actual = NULL;
       cost_function = funct;
       d_cost.resize(inputs);
   }
 
-  ~Dense_layer() {
+  ~Network_output() {
     delete input;
+    delete actual;
   }
 
-};
->>>>>>> 3549167268ec60ee53a83e0c3e303d2aaee0455d
+  void calculate() {
 
+    cost_function(*input, *actual, cost, d_cost);
+  }
+};
+
+template <class T>
+struct Network_input {
+
+  std::vector<T>* raw_input;
+  std::vector<T>* raw_output;
+
+  std::vector<T> input_scaling;
+  std::vector<T> output_scaling;
+
+  std::vector<T> input;
+  std::vector<T> output;
+
+  Network_input(int inputs, int outputs) {
+
+    raw_input = NULL;
+    raw_output = NULL;
+    input_scaling.resize(inputs, 1);
+    output_scaling.resize(outputs, 1);
+    input.resize(inputs);
+    output.resize(outputs);
+  }
+
+  ~Network_input() {
+
+    delete raw_input;
+    delete raw_output;
+  }
+
+  void rescale() {
+
+    hadamard(*raw_input,  input_scaling,  input );
+    hadamard(*raw_output, output_scaling, output);
+  }
+
+
+};
 
 #endif
