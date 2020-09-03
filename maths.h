@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <ctime>
 
 /// Vector functions
 
@@ -43,6 +44,23 @@ void add(         const std::vector <T> & operand,
 }
 
 template <typename T>
+void subtract(    const std::vector <T> & operand1,
+                  const std::vector <T> & operand2,
+                        std::vector <T> & variable) {
+
+  for(int i = 0; i < variable.size(); ++i)
+    variable[i] = operand1[i] - operand2[i];
+}
+
+template <typename T>
+void subtract(    const std::vector <T> & operand,
+                        std::vector <T> & variable) {
+
+  for(int i = 0; i < variable.size(); ++i)
+    variable[i] -= operand[i];
+}
+
+template <typename T>
 void perturb(     const std::vector <T> & operand,
                         T adjustment,
                         std::vector <T> & variable) {
@@ -67,7 +85,32 @@ void hadamard(    const std::vector <T> & operand1,
 
   for(int i = 0; i < variable.size(); ++i)
     variable[i] = operand1[i] * operand2[i];
-  }
+}
+
+template <typename T>
+void hadamard(    const std::vector <T> & operand,
+                        std::vector <T> & variable) {
+
+  for(int i = 0; i < variable.size(); ++i)
+    variable[i] *= operand[i];
+}
+
+template <typename T>
+void hadamard_recip(  const std::vector <T> & operand1,
+                      const std::vector <T> & operand2,
+                            std::vector <T> & variable) {
+
+  for(int i = 0; i < variable.size(); ++i)
+    variable[i] = operand1[i] / operand2[i];
+}
+
+template <typename T>
+void hadamard_recip(  const std::vector <T> & operand,
+                            std::vector <T> & variable) {
+
+  for(int i = 0; i < variable.size(); ++i)
+    variable[i] /= operand[i];
+}
 
 /// Matrix functions
 
@@ -236,5 +279,40 @@ void Binary_crossentropy( const std::vector <T> & operand,
   error /= operand.size();
 }
 
+/// Combinatorics
+
+std::vector<int> permutation_random(int n) {
+
+  std::vector<int> output;
+  std::vector<bool> indicator;
+  int r, offset;
+
+  srand((unsigned) time(NULL));
+  output.resize(n);
+  indicator.resize(n, 1);
+
+  for(int i = 0; i < n; ++i) {
+    r = (int) floor(((float) rand()/RAND_MAX)*(n-i));
+    offset = 0;
+    for(int j = 0; j <= r + offset; ++j) {
+      if(indicator[j] == 0) ++offset;
+    }
+    indicator[r + offset] = 0;
+    output[i] = r + offset;
+  }
+  return output;
+}
+
+template <typename T>
+void permutation_random(std::vector<std::vector<T>> &data) {
+
+  std::vector<std::vector<T>> temp = data;
+  std::vector<int> p;
+  p = permutation_random(data.size());
+
+  for(int i = 0; i < data.size(); ++i)
+    for(int j = 0; j < data[i].size(); ++j)
+      data[i][j] = temp[p[i]][j];
+  }
 
 #endif

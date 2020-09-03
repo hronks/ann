@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-//#include <cstdlib>
 #include <ctime>
 
 #include "maths.h"
@@ -54,10 +53,7 @@ struct Dense_layer {
 
   }
 
-  ~Dense_layer() {
-    delete input;
-    delete pass_back_inbox;
-  }
+  ~Dense_layer() {}
 
   void randomize_weights(bool positive) {
 
@@ -135,10 +131,7 @@ struct Network_output {
       d_cost.resize(inputs);
   }
 
-  ~Network_output() {
-    delete input;
-    delete actual;
-  }
+  ~Network_output() {}
 
   void calculate() {
 
@@ -152,7 +145,9 @@ struct Network_input {
   std::vector<T>* raw_input;
   std::vector<T>* raw_output;
 
+  std::vector<T> input_offset;
   std::vector<T> input_scaling;
+  std::vector<T> output_offset;
   std::vector<T> output_scaling;
 
   std::vector<T> input;
@@ -162,24 +157,24 @@ struct Network_input {
 
     raw_input = NULL;
     raw_output = NULL;
+    input_offset.resize(inputs, 0);
     input_scaling.resize(inputs, 1);
+    output_offset.resize(outputs, 0);
     output_scaling.resize(outputs, 1);
     input.resize(inputs);
     output.resize(outputs);
   }
 
-  ~Network_input() {
+  ~Network_input() {}
 
-    delete raw_input;
-    delete raw_output;
+  void normalize() {
+
+    subtract(*raw_input,  input_offset,  input);
+    hadamard_recip(input_scaling,  input);
+
+    subtract(*raw_output, output_offset, output);
+    hadamard_recip(output_scaling, output);
   }
-
-  void rescale() {
-
-    hadamard(*raw_input,  input_scaling,  input );
-    hadamard(*raw_output, output_scaling, output);
-  }
-
 
 };
 
