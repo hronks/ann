@@ -178,6 +178,22 @@ void multiply(    const std::vector <std::vector <T>> & operand1,
       }
   }
 
+template <typename S, typename T>
+void multiply(    const std::vector <std::vector <S>> & operand1,
+                  const std::vector <std::vector <S>> & operand2,
+                        std::vector <std::vector <T>> & variable) {
+
+  T temp1, temp2;
+
+  for(int i = 0; i < variable.size(); ++i)
+    for(int j = 0; j < variable[i].size(); ++ j)
+      for(int k = 0; k < operand2.size(); ++k) {
+        temp1 = (T) operand1[i][k];
+        temp2 = (T) operand2[k][j];
+        variable[i][j] += temp1 * temp2;
+      }
+  }
+
 template <typename T>
 void transpose(   const std::vector <std::vector <T>> & operand,
                         std::vector <std::vector <T>> & variable) {
@@ -269,12 +285,31 @@ void Binary_crossentropy( const std::vector <T> & operand,
                                 std::vector <T> & diff) {
   error = 0;
 
-  for(int i = 0; i < diff.size(); ++i)
-    diff[i] = (operand[i] - actual[i]) / (operand[i] * (1 - operand[i]));
-
   for(int i = 0; i < operand.size(); ++i) {
-    error -= actual[i] * log(operand[i]) +
-      (1 - actual[i]) * log(1 - operand[i]);
+
+    if(actual[i] == operand[i]) {
+      if(actual[i] == 0) diff[i] = 1;
+      else diff[i] = -1;
+    }
+
+//    else if(operand[i]  == 0) {
+//      error += 16.1;
+//      diff[i] = -10000000;
+//      std::cout<<"COST FUNCTION LIMIT 1";
+//    }
+//
+//    else if(operand[i]  == 1) {
+//      error += 25.3;
+//      diff[i] = 10000000;
+//      std::cout<<"COST FUNCTION LIMIT 2";
+//    }
+
+    else {
+
+      error -= actual[i] * log(operand[i]) +
+        (1 - actual[i]) * log(1 - operand[i]);
+      diff[i] = (operand[i] - actual[i]) / (operand[i] * (1 - operand[i]));
+    }
   }
   error /= operand.size();
 }
@@ -313,6 +348,6 @@ void permutation_random(std::vector<std::vector<T>> &data) {
   for(int i = 0; i < data.size(); ++i)
     for(int j = 0; j < data[i].size(); ++j)
       data[i][j] = temp[p[i]][j];
-  }
+}
 
 #endif

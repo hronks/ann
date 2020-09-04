@@ -1,4 +1,5 @@
 #include "ann.h"
+#include <limits>
 
 int main() {
 
@@ -9,7 +10,7 @@ int main() {
   CSV_scan <float> ("housepricedata.csv", 1, rows, columns);
   CSV_load <float> ("housepricedata.csv", 1, rows, columns, data);
 
-  Random_split (data, 0.7, data_train, data_valid);
+  Random_split <float> (data, 0.7, data_train, data_valid);
 
 
   // create and link the network
@@ -52,17 +53,18 @@ int main() {
   float epoch_train_accuracy = 0;
   float epoch_average_valid_cost = 0;
   float epoch_valid_accuracy = 0;
+  int error_code = 0;
 
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 100; ++epoch) {
+  for(int epoch = 0; epoch < 10; ++epoch) {
 
 
     // train the network
 
-    for(int i = 0; i < data_train.size(); ++i) {
 
+    for(int i = 0; i < data_train.size(); ++i) {
 
       // initiate data and pass forward
 
@@ -70,28 +72,36 @@ int main() {
 
       x = Pull_data <float> (data_train, i,  1, 10);
       y = Pull_data <float> (data_train, i, 11, 11);
+
       in.normalize();
 
       l1.forward();
       l2.forward();
       l3.forward();
+
       out.calculate();
       old_cost = out.cost;
 
+      if(isinf(out.cost) || isnan(out.cost)) {
+        error_code = 1;
+        goto stop;
+      }
 
       // calulate derviatives, improve and recalculate output
 
       l3.backwards();
       l2.backwards();
       l1.backwards();
-      l1.learn(0.001);
-      l2.learn(0.001);
-      l3.learn(0.001);
+
+      l1.learn(0.01);
+      l2.learn(0.01);
+      l3.learn(0.01);
+
       l1.forward();
       l2.forward();
       l3.forward();
-      out.calculate();
 
+      out.calculate();
 
       // update training epoch statistics
 
@@ -109,11 +119,13 @@ int main() {
 
       x = Pull_data <float> (data_valid, i,  1, 10);
       y = Pull_data <float> (data_valid, i, 11, 11);
+
       in.normalize();
 
       l1.forward();
       l2.forward();
       l3.forward();
+
       out.calculate();
 
 
@@ -122,14 +134,12 @@ int main() {
       if( (*out.input)[0] - (*out.actual)[0] <  0.5 &&
           (*out.input)[0] - (*out.actual)[0] > -0.5) epoch_valid_accuracy += (float) 1;
       epoch_average_valid_cost += out.cost;
-
     }
 
 
     // permute the training data
 
-    permutation_random(data_train);
-
+    permutation_random <float> (data_train);
 
     // epoch statistics
 
@@ -144,4 +154,6 @@ int main() {
 
   }
 
+  stop:
+    if(error_code == 1) std::cout<<"COST FUNCTION LIMIT ERROR";
 }
