@@ -5,27 +5,42 @@ int main() {
 
   // load data and divide bwtween training and validation
 
+  float   fl = 3.14;
+  double  dl = 3.14;
+  std::cout<< std::hexfloat << fl << std::endl;
+  std::cout<< std::hexfloat << dl << std::endl;
+
+  std::cout<<"a";
+
   int rows, columns;
-  std::vector<std::vector<float>> data, data_train, data_valid;
-  CSV_scan <float> ("housepricedata.csv", 1, rows, columns);
-  CSV_load <float> ("housepricedata.csv", 1, rows, columns, data);
+  std::vector<std::vector<double>> data, data_train, data_valid;
+  CSV_scan <double> ("housepricedata.csv", 1, rows, columns);
+  CSV_load <double> ("housepricedata.csv", 1, rows, columns, data);
 
-  Random_split <float> (data, 0.7, data_train, data_valid);
+  std::cout<<"b";
 
+  // THERE IS AN ISSUE HERE
+  Random_split <double> (data, 0.7, data_train, data_valid);
+
+  std::cout<<"c";
 
   // create and link the network
 
-  std::vector <float> x, y;
+  std::vector <double> x, y;
 
-  Network_input  <float> in  (10, 1);
-  Dense_layer    <float> l1  (10, 32, & ReLU    <float>);
-  Dense_layer    <float> l2  (32, 32, & ReLU    <float>);
-  Dense_layer    <float> l3  (32, 1,  & Sigmoid <float>);
-  Network_output <float> out (1, & Binary_crossentropy <float>);
+  Network_input  <double> in  (10, 1);
+  Dense_layer    <double> l1  (10, 32, & ReLU    <double>);
+  Dense_layer    <double> l2  (32, 32, & ReLU    <double>);
+  Dense_layer    <double> l3  (32, 1,  & Sigmoid <double>);
+  Network_output <double> out (1, & Binary_crossentropy <double>);
+
+  std::cout<<"d";
 
   l1.randomize_weights(0);
   l2.randomize_weights(0);
   l3.randomize_weights(0);
+
+  std::cout<<"e";
 
   in.raw_input = & x;
   in.raw_output = & y;
@@ -38,14 +53,16 @@ int main() {
   out.input = &l3.output;
   out.actual = & in.output;
 
+  std::cout<<"f";
 
   // set the normalization data
 
-  in.input_offset   = Sample_mean <float> (data, 1, 10);
-  in.input_scaling  = Sample_sd   <float> (data, in.input_offset, 1, 10);
+  in.input_offset   = Sample_mean <double> (data, 1, 10);
+  in.input_scaling  = Sample_sd   <double> (data, in.input_offset, 1, 10);
   in.output_offset  = {0};
   in.output_scaling = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
+  std::cout<<"g";
 
   // create observables for training and validation
 
@@ -55,10 +72,12 @@ int main() {
   float epoch_valid_accuracy = 0;
   int error_code = 0;
 
+  std::cout<<"h";
+  std::cout<<"\n";
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 10; ++epoch) {
+  for(int epoch = 0; epoch < 1; ++epoch) {
 
 
     // train the network
@@ -70,8 +89,8 @@ int main() {
 
       float old_cost;
 
-      x = Pull_data <float> (data_train, i,  1, 10);
-      y = Pull_data <float> (data_train, i, 11, 11);
+      x = Pull_data <double> (data_train, i,  1, 10);
+      y = Pull_data <double> (data_train, i, 11, 11);
 
       in.normalize();
 
@@ -108,7 +127,7 @@ int main() {
 //    std::cout<<"#"<<i<<"\t"<<old_cost<<"\t->  "<<out.cost<<"\n";
 
       if( (*out.input)[0] - (*out.actual)[0] <  0.5 &&
-          (*out.input)[0] - (*out.actual)[0] > -0.5) epoch_train_accuracy += (float) 1;
+          (*out.input)[0] - (*out.actual)[0] > -0.5) epoch_train_accuracy += (double) 1;
       epoch_average_train_cost += out.cost;
     }
 
@@ -117,8 +136,8 @@ int main() {
 
     for(int i = 0; i < data_valid.size(); ++i) {
 
-      x = Pull_data <float> (data_valid, i,  1, 10);
-      y = Pull_data <float> (data_valid, i, 11, 11);
+      x = Pull_data <double> (data_valid, i,  1, 10);
+      y = Pull_data <double> (data_valid, i, 11, 11);
 
       in.normalize();
 
@@ -139,14 +158,19 @@ int main() {
 
     // permute the training data
 
-    permutation_random <float> (data_train);
+    std::cout<<"!";
+
+    //THERE IS AN ISSUE HERE
+    permutation_random <double> (data_train);
+
+    std::cout<<"!\n";
 
     // epoch statistics
 
-    epoch_train_accuracy /= (float) data_train.size();
+    epoch_train_accuracy /= (double) data_train.size();
     epoch_average_train_cost /= data_train.size();
 
-    epoch_valid_accuracy /= (float) data_valid.size();
+    epoch_valid_accuracy /= (double) data_valid.size();
     epoch_average_valid_cost /= data_valid.size();
 
     std::cout<<"#"<<epoch<<"\t"<<epoch_average_train_cost<<", "<<epoch_train_accuracy<<"\t";

@@ -327,7 +327,7 @@ std::vector<int> permutation_random(int n) {
   indicator.resize(n, 1);
 
   for(int i = 0; i < n; ++i) {
-    r = (int) floor(((float) rand()/RAND_MAX)*(n-i));
+    r = (int) floor(((float) rand()/(RAND_MAX+1))*(n-i));
     offset = 0;
     for(int j = 0; j <= r + offset; ++j) {
       if(indicator[j] == 0) ++offset;

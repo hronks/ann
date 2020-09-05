@@ -175,6 +175,11 @@ struct Network_input {
 
     subtract(*raw_output, output_offset, output);
     hadamard_recip(output_scaling, output);
+
+    for(int i = 0; i < input.size(); ++i) {
+      input[i] = (float) input[i];
+    }
+
   }
 
 };
