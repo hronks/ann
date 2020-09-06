@@ -8,6 +8,7 @@
 
 #include "maths.h"
 #include "data.h"
+#include "float_manip.h"
 
 template <class T>
 struct Dense_layer {

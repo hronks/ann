@@ -1,28 +1,20 @@
 #include "ann.h"
-#include <limits>
+#include <iomanip>
+
+#define FL_BITS 23
+#define DB_BITS 52
+#define LD_BITS 112
 
 int main() {
 
   // load data and divide bwtween training and validation
-
-  float   fl = 3.14;
-  double  dl = 3.14;
-  std::cout<< std::hexfloat << fl << std::endl;
-  std::cout<< std::hexfloat << dl << std::endl;
-
-  std::cout<<"a";
 
   int rows, columns;
   std::vector<std::vector<double>> data, data_train, data_valid;
   CSV_scan <double> ("housepricedata.csv", 1, rows, columns);
   CSV_load <double> ("housepricedata.csv", 1, rows, columns, data);
 
-  std::cout<<"b";
-
-  // THERE IS AN ISSUE HERE
   Random_split <double> (data, 0.7, data_train, data_valid);
-
-  std::cout<<"c";
 
   // create and link the network
 
@@ -34,13 +26,9 @@ int main() {
   Dense_layer    <double> l3  (32, 1,  & Sigmoid <double>);
   Network_output <double> out (1, & Binary_crossentropy <double>);
 
-  std::cout<<"d";
-
   l1.randomize_weights(0);
   l2.randomize_weights(0);
   l3.randomize_weights(0);
-
-  std::cout<<"e";
 
   in.raw_input = & x;
   in.raw_output = & y;
@@ -53,16 +41,12 @@ int main() {
   out.input = &l3.output;
   out.actual = & in.output;
 
-  std::cout<<"f";
-
   // set the normalization data
 
   in.input_offset   = Sample_mean <double> (data, 1, 10);
   in.input_scaling  = Sample_sd   <double> (data, in.input_offset, 1, 10);
   in.output_offset  = {0};
   in.output_scaling = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
-  std::cout<<"g";
 
   // create observables for training and validation
 
@@ -72,16 +56,13 @@ int main() {
   float epoch_valid_accuracy = 0;
   int error_code = 0;
 
-  std::cout<<"h";
   std::cout<<"\n";
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 1; ++epoch) {
-
+  for(int epoch = 0; epoch < 100; ++epoch) {
 
     // train the network
-
 
     for(int i = 0; i < data_train.size(); ++i) {
 
@@ -93,6 +74,9 @@ int main() {
       y = Pull_data <double> (data_train, i, 11, 11);
 
       in.normalize();
+
+      for(int i = 0; i < in.input.size(); ++i)
+        remove_precision(in.input[i], (DB_BITS*3)/4);
 
       l1.forward();
       l2.forward();
@@ -147,7 +131,6 @@ int main() {
 
       out.calculate();
 
-
       // update validation epoch statistics
 
       if( (*out.input)[0] - (*out.actual)[0] <  0.5 &&
@@ -158,12 +141,7 @@ int main() {
 
     // permute the training data
 
-    std::cout<<"!";
-
-    //THERE IS AN ISSUE HERE
     permutation_random <double> (data_train);
-
-    std::cout<<"!\n";
 
     // epoch statistics
 
