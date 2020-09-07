@@ -9,9 +9,10 @@
 #include "maths.h"
 #include "data.h"
 #include "float_manip.h"
+#include "ann_routines.h"
 
 template <class T>
-struct Dense_layer {
+struct Dense_layer : public Layer {
 
   std::vector <T> *input;
   std::vector <T> output;
@@ -81,10 +82,6 @@ struct Dense_layer {
 
   }
 
-  void link_layers() {
-
-  }
-
   void forward() {
 
     multiply(weight, *input, output);
@@ -111,7 +108,7 @@ struct Dense_layer {
 };
 
 template <class T>
-struct Network_output {
+struct Network_output : public Layer {
 
   std::vector <T> *input;
   std::vector <T> *actual;
@@ -142,7 +139,7 @@ struct Network_output {
 };
 
 template <class T>
-struct Network_input {
+struct Network_input : public Layer {
 
   std::vector<T>* raw_input;
   std::vector<T>* raw_output;

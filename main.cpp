@@ -1,5 +1,4 @@
 #include "ann.h"
-#include <iomanip>
 
 #define FL_BITS 23
 #define DB_BITS 52
@@ -16,7 +15,7 @@ int main() {
 
   Random_split <double> (data, 0.7, data_train, data_valid);
 
-  // create and link the network
+  // create the layers and randomize weights
 
   std::vector <double> x, y;
 
@@ -30,6 +29,25 @@ int main() {
   l2.randomize_weights(0);
   l3.randomize_weights(0);
 
+  // set the normalization data
+
+  in.input_offset   = Sample_mean <double> (data, 1, 10);
+  in.input_scaling  = Sample_sd   <double> (data, in.input_offset, 1, 10);
+  in.output_offset  = {0};
+  in.output_scaling = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+  // create the network wrapper and link the layers
+
+  ANN network(3);
+
+  network.l[0] = &in;
+  network.l[1] = &l1;
+  network.l[2] = &l2;
+  network.l[3] = &l3;
+  network.l[4] = &out;
+
+  network.link();
+
   in.raw_input = & x;
   in.raw_output = & y;
   l1.input = & in.input;
@@ -40,13 +58,6 @@ int main() {
   l3.pass_back_inbox = & out.d_cost;
   out.input = &l3.output;
   out.actual = & in.output;
-
-  // set the normalization data
-
-  in.input_offset   = Sample_mean <double> (data, 1, 10);
-  in.input_scaling  = Sample_sd   <double> (data, in.input_offset, 1, 10);
-  in.output_offset  = {0};
-  in.output_scaling = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
   // create observables for training and validation
 
@@ -60,7 +71,7 @@ int main() {
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 100; ++epoch) {
+  for(int epoch = 0; epoch < 1; ++epoch) {
 
     // train the network
 
