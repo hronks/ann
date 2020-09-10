@@ -1,5 +1,8 @@
-#ifndef ANN_H
-#define ANN_H
+#pragma once
+
+#define FL_BITS 23
+#define DB_BITS 52
+#define LD_BITS 112
 
 #include <iostream>
 #include <vector>
@@ -10,9 +13,11 @@
 #include "data.h"
 #include "float_manip.h"
 #include "ann_routines.h"
+#include "main_routines.h"
+
 
 template <class T>
-struct Dense_layer : public Layer {
+struct Dense_layer: public Layer_hidden {
 
   std::vector <T> *input;
   std::vector <T> output;
@@ -99,16 +104,18 @@ struct Dense_layer : public Layer {
     outer(d_bias, *input, d_weight);
   }
 
-  void learn(T rate) {
+  void learn(float rate) {
 
-    perturb(d_weight, -rate, weight);
-    perturb(d_bias, -rate, bias);
+    T rate_T;
+    rate_T = rate;
+    perturb(d_weight, -rate_T, weight);
+    perturb(d_bias, -rate_T, bias);
   }
 
 };
 
 template <class T>
-struct Network_output : public Layer {
+struct Network_output: public Layer_output {
 
   std::vector <T> *input;
   std::vector <T> *actual;
@@ -139,10 +146,10 @@ struct Network_output : public Layer {
 };
 
 template <class T>
-struct Network_input : public Layer {
+struct Network_input: public Layer_input {
 
-  std::vector<T>* raw_input;
-  std::vector<T>* raw_output;
+  std::vector<T> raw_input;
+  std::vector<T> raw_output;
 
   std::vector<T> input_offset;
   std::vector<T> input_scaling;
@@ -154,8 +161,8 @@ struct Network_input : public Layer {
 
   Network_input(int inputs, int outputs) {
 
-    raw_input = NULL;
-    raw_output = NULL;
+    raw_input.resize(inputs, 0);
+    raw_output.resize(outputs, 0);
     input_offset.resize(inputs, 0);
     input_scaling.resize(inputs, 1);
     output_offset.resize(outputs, 0);
@@ -168,10 +175,10 @@ struct Network_input : public Layer {
 
   void normalize() {
 
-    subtract(*raw_input,  input_offset,  input);
+    subtract(raw_input,  input_offset,  input);
     hadamard_recip(input_scaling,  input);
 
-    subtract(*raw_output, output_offset, output);
+    subtract(raw_output, output_offset, output);
     hadamard_recip(output_scaling, output);
 
     for(int i = 0; i < input.size(); ++i) {
@@ -180,6 +187,9 @@ struct Network_input : public Layer {
 
   }
 
-};
+  void remove_precision_li(int bits) {
+    for(int i = 0; i < input.size(); ++i)
+      remove_precision(input[i], bits);
+  }
 
-#endif
+};

@@ -1,5 +1,4 @@
-#ifndef MATHS_H
-#define MATHS_H
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -316,27 +315,7 @@ void Binary_crossentropy( const std::vector <T> & operand,
 
 /// Combinatorics
 
-std::vector<int> permutation_random(int n) {
-
-  std::vector<int> output;
-  std::vector<bool> indicator;
-  int r, offset;
-
-  srand((unsigned) time(NULL));
-  output.resize(n);
-  indicator.resize(n, 1);
-
-  for(int i = 0; i < n; ++i) {
-    r = (int) floor(((float) rand()/(RAND_MAX+1))*(n-i));
-    offset = 0;
-    for(int j = 0; j <= r + offset; ++j) {
-      if(indicator[j] == 0) ++offset;
-    }
-    indicator[r + offset] = 0;
-    output[i] = r + offset;
-  }
-  return output;
-}
+std::vector<int> permutation_random(int n);
 
 template <typename T>
 void permutation_random(std::vector<std::vector<T>> &data) {
@@ -349,5 +328,3 @@ void permutation_random(std::vector<std::vector<T>> &data) {
     for(int j = 0; j < data[i].size(); ++j)
       data[i][j] = temp[p[i]][j];
 }
-
-#endif

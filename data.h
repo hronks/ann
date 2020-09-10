@@ -1,5 +1,4 @@
-#ifndef DATA_H
-#define DATA_H
+#pragma once
 
 #include <string>
 #include <fstream>
@@ -125,5 +124,3 @@ std::vector<T> Sample_sd  ( const std::vector<std::vector<T>> & data,
     }
     return output;
 }
-
-#endif
