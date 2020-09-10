@@ -65,7 +65,6 @@ struct ANN {
 
   void link() {
 
-    
 
 
 

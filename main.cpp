@@ -2,7 +2,7 @@
 
 int main() {
 
-  // load data and divide bwtween training and validation
+  // load data and divide bwtween training and validation <-- create a data structure and put in one function
 
   int rows, columns;
   std::vector<std::vector<double>> data, data_train, data_valid;
@@ -10,7 +10,7 @@ int main() {
   CSV_load <double> ("housepricedata.csv", 1, rows, columns, data);
   Random_split <double> (data, 0.7, data_train, data_valid);
 
-  // create the layers
+  // create the layers <-- configuration file and function that outputs a networl
 
   Network_input  <double> in  (10, 1);
   Dense_layer    <double> l1  (10, 32, & ReLU    <double>);
@@ -18,20 +18,21 @@ int main() {
   Dense_layer    <double> l3  (32, 1,  & Sigmoid <double>);
   Network_output <double> out (1, & Binary_crossentropy <double>);
 
-  // set the normalization parameters
+  // set the normalization parameters <-- links to data function
 
   in.input_offset   = Sample_mean <double> (data, 1, 10);
   in.input_scaling  = Sample_sd   <double> (data, in.input_offset, 1, 10);
 
-  // link the layers
+  // create the network
 
   ANN network;
   network.input_layer  = &in;
   network.hidden_layer = {&l1, &l2, &l3};
   network.output_layer = &out;
 
-//  network.link();
+  // link the layers
 
+//  network.link();
   l1.input = & in.input;
   l1.pass_back_inbox = & l2.pass_back_outbox;
   l2.input = & l1.output;
@@ -40,10 +41,6 @@ int main() {
   l3.pass_back_inbox = & out.d_cost;
   out.input = &l3.output;
   out.actual = & in.output;
-
-  // put layers into the network "wrapper"
-
-
 
   // randomize_weights
 
@@ -55,12 +52,11 @@ int main() {
   float epoch_train_accuracy = 0;
   float epoch_average_valid_cost = 0;
   float epoch_valid_accuracy = 0;
-
-  std::cout<<"\n";
+  std::ofstream graph_stream("output.csv");
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 50; ++epoch) {
+  for(int epoch = 0; epoch < 200; ++epoch) {
 
     // train the network
 
@@ -106,6 +102,9 @@ int main() {
 
     std::cout<<"#"<<epoch<<"\t"<<epoch_average_train_cost<<", "<<epoch_train_accuracy<<"\t";
     std::cout<<epoch_average_valid_cost<<", "<<epoch_valid_accuracy<<"\n";
+
+    graph_stream<<epoch<<","<<epoch_average_train_cost<<","<<epoch_train_accuracy<<",";
+    graph_stream<<epoch_average_valid_cost<<","<<epoch_valid_accuracy<<"\n";
 
   }
 
