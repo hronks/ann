@@ -12,6 +12,13 @@ int main() {
 
   // create the layers <-- configuration file and function that outputs a networl
 
+  // END SOLUTION
+  // Data ANN_data =  Load_ANN_data("housepricedata.csv", 1 [has header], 0.7 [training split])
+  // ANN network   =  load_network("network1.dat", 1 [randomize_weights]);
+  // ANN_training_output output; [output vectors for graphing]
+  // netwok.train(ANN_data, 100, ANN_output, 1 [bool - show output live]);
+  // output.something(); [some summary information from training]
+
   Network_input  <double> in  (10, 1);
   Dense_layer    <double> l1  (10, 32, & ReLU    <double>);
   Dense_layer    <double> l2  (32, 32, & ReLU    <double>);
@@ -56,7 +63,7 @@ int main() {
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 200; ++epoch) {
+  for(int epoch = 0; epoch < 100; ++epoch) {
 
     // train the network
 

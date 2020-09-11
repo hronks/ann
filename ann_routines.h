@@ -8,8 +8,9 @@ struct Layer_output;
 
 struct Layer_hidden {
 
-  Layer_input*  input_i;
+  Layer_input * input_i;
   Layer_hidden* input_h;
+
   Layer_hidden* output_h;
   Layer_output* output_o;
 
@@ -65,7 +66,7 @@ struct ANN {
 
   void link() {
 
-
+    output_layer->link()
 
 
 
