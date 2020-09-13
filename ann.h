@@ -15,6 +15,33 @@
 #include "ann_routines.h"
 #include "main_routines.h"
 
+struct Layer_hidden;
+struct Layer_input;
+struct Layer_output;
+
+template<class T>
+struct Layer_hidden {
+
+  virtual void randomize_weights(bool positive)   {return;}
+  virtual void forward()                          {return;}
+  virtual void backwards()                        {return;}
+  virtual void learn(float h)                     {return;}
+};
+
+template<class T>
+struct Layer_input {
+
+  virtual void normalize()                        {return;}
+  virtual void remove_precision_li(int bits)      {return;}
+
+};
+
+template<class T>
+struct Layer_output {
+
+  virtual void calculate()                        {return;}
+
+};
 
 template <class T>
 struct Dense_layer: public Layer_hidden {

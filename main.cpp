@@ -2,19 +2,10 @@
 
 int main() {
 
-  // load data and divide bwtween training and validation <-- create a data structure and put in one function
+  ANN_data <double> data("housepricedata.csv", 1, 0.7);
+  ANN network2("networks.dat");
 
-  int rows, columns;
-  std::vector<std::vector<double>> data, data_train, data_valid;
-  CSV_scan <double> ("housepricedata.csv", 1, rows, columns);
-  CSV_load <double> ("housepricedata.csv", 1, rows, columns, data);
-  Random_split <double> (data, 0.7, data_train, data_valid);
-
-  // create the layers <-- configuration file and function that outputs a networl
-
-  // END SOLUTION
-  // Data ANN_data =  Load_ANN_data("housepricedata.csv", 1 [has header], 0.7 [training split])
-  // ANN network   =  load_network("network1.dat", 1 [randomize_weights]);
+  // ANN network   =  load_network("network1.dat", 1);
   // ANN_training_output output; [output vectors for graphing]
   // netwok.train(ANN_data, 100, ANN_output, 1 [bool - show output live]);
   // output.something(); [some summary information from training]
@@ -27,19 +18,11 @@ int main() {
 
   // set the normalization parameters <-- links to data function
 
-  in.input_offset   = Sample_mean <double> (data, 1, 10);
-  in.input_scaling  = Sample_sd   <double> (data, in.input_offset, 1, 10);
-
-  // create the network
-
-  ANN network;
-  network.input_layer  = &in;
-  network.hidden_layer = {&l1, &l2, &l3};
-  network.output_layer = &out;
+  in.input_offset   = Sample_mean <double> (data.data, 1, 10);
+  in.input_scaling  = Sample_sd   <double> (data.data, in.input_offset, 1, 10);
 
   // link the layers
 
-//  network.link();
   l1.input = & in.input;
   l1.pass_back_inbox = & l2.pass_back_outbox;
   l2.input = & l1.output;
@@ -48,6 +31,13 @@ int main() {
   l3.pass_back_inbox = & out.d_cost;
   out.input = &l3.output;
   out.actual = & in.output;
+
+  // create the network
+
+  ANN network;
+  network.input_layer  = &in;
+  network.hidden_layer = {&l1, &l2, &l3};
+  network.output_layer = &out;
 
   // randomize_weights
 
@@ -63,16 +53,16 @@ int main() {
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 100; ++epoch) {
+  for(int epoch = 0; epoch < 2; ++epoch) {
 
     // train the network
 
-    for(int i = 0; i < data_train.size(); ++i) {
+    for(int i = 0; i < data.data_train.size(); ++i) {
 
       // initiate data and pass forward
 
-      in.raw_input  = Pull_data <double> (data_train, i,  1, 10);
-      in.raw_output = Pull_data <double> (data_train, i, 11, 11);
+      in.raw_input  = Pull_data <double> (data.data_train, i,  1, 10);
+      in.raw_output = Pull_data <double> (data.data_train, i, 11, 11);
       network.run_epoch((DB_BITS*3)/4, 0.01);
 
       if( (*out.input)[0] - (*out.actual)[0] <  0.5 &&
@@ -82,10 +72,10 @@ int main() {
 
     // calulcate validation error
 
-    for(int i = 0; i < data_valid.size(); ++i) {
+    for(int i = 0; i < data.data_valid.size(); ++i) {
 
-      in.raw_input  = Pull_data <double> (data_valid, i,  1, 10);
-      in.raw_output = Pull_data <double> (data_valid, i, 11, 11);
+      in.raw_input  = Pull_data <double> (data.data_valid, i,  1, 10);
+      in.raw_output = Pull_data <double> (data.data_valid, i, 11, 11);
       network.predict();
 
       // update validation epoch statistics
@@ -97,15 +87,15 @@ int main() {
 
     // permute the training data
 
-    permutation_random <double> (data_train);
+    permutation_random <double> (data.data_train);
 
     // epoch statistics
 
-    epoch_train_accuracy /= (double) data_train.size();
-    epoch_average_train_cost /= data_train.size();
+    epoch_train_accuracy /= (double) data.data_train.size();
+    epoch_average_train_cost /= data.data_train.size();
 
-    epoch_valid_accuracy /= (double) data_valid.size();
-    epoch_average_valid_cost /= data_valid.size();
+    epoch_valid_accuracy /= (double) data.data_valid.size();
+    epoch_average_valid_cost /= data.data_valid.size();
 
     std::cout<<"#"<<epoch<<"\t"<<epoch_average_train_cost<<", "<<epoch_train_accuracy<<"\t";
     std::cout<<epoch_average_valid_cost<<", "<<epoch_valid_accuracy<<"\n";

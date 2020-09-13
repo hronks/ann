@@ -124,3 +124,33 @@ std::vector<T> Sample_sd  ( const std::vector<std::vector<T>> & data,
     }
     return output;
 }
+
+template <typename T>
+struct ANN_data {
+
+  std::string file_path;
+  bool has_header;
+  std::vector<std::vector<T>> data;
+  std::vector<std::vector<T>> data_train;
+  std::vector<std::vector<T>> data_valid;
+
+  float training_proportion;
+
+
+  ANN_data(           std::string set_file_path,
+                      bool set_has_header,
+                      float set_training_proportion) {
+
+    file_path = set_file_path;
+    has_header = set_has_header;
+    training_proportion = set_training_proportion;
+
+    int rows, columns;
+
+    CSV_scan <T> (file_path, has_header, rows, columns);
+    CSV_load <T> (file_path, has_header, rows, columns, data);
+    Random_split <T> (data, training_proportion, data_train, data_valid);
+
+  }
+
+};
