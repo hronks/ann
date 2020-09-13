@@ -4,7 +4,10 @@ int main() {
 
   ANN_data <double> data("housepricedata.csv", 1, 0.7, 10);
 
-//  ANN network2("networks.dat");
+  ANN <double> network2("networks.dat");
+
+  //std::cout<<network2->input_layer.size();
+
 
   // ANN network   =  load_network("network1.dat", 1);
   // ANN_training_output output; [output vectors for graphing]
@@ -23,10 +26,11 @@ int main() {
   network.input_layer  = &in;
   network.hidden_layer = {&l1, &l2, &l3};
   network.output_layer = &out;
-  network.set_normalization(Sample_mean <double> (data.data, 1, 10),
-                      Sample_sd <double> (data.data, in.input_offset, 1, 10));
   network.link();
   network.randomize_weights(0);
+
+  network.set_normalization(Sample_mean <double> (data.data, 1, 10),
+                      Sample_sd <double> (data.data, in.input_offset, 1, 10));
 
   // create observables for training and validation
 

@@ -1,31 +1,13 @@
-network_id 1
-name network1
+ANN <double> network2;
 
-input_layer_type Network_input
-input_layer_data double
-input_layer_inputs 10
-input_layer_outputs 1
+Network_input  <double> network2_in  (10, 1);
+Dense_layer    <double> network2_l1  (10, 32, & ReLU    <double>);
+Dense_layer    <double> network2_l2  (32, 32, & ReLU    <double>);
+Dense_layer    <double> network2_l3  (32, 1,  & Sigmoid <double>);
+Network_output <double> network2_out (1, & Binary_crossentropy <double>);
 
-hidden_layers 3
-
-hidden_layer_1_type Dense_layer_<double>
-hidden_layer_1_in 10
-hidden_layer_1_out 32
-hidden_layer_1_af ReLU_<double>
-
-hidden_layer_2_type Dense_layer_<double>
-hidden_layer_2_in 32
-hidden_layer_2_out 32
-hidden_layer_2_af ReLU_<double>
-
-hidden_layer_3_type Dense_layer<double>
-hidden_layer_3_in 32
-hidden_layer_3_out 1
-hidden_layer_3_af Sigmoid_<double>
-
-output_layer_type Network_output
-output_layer_data double
-output_layer_out 1
-output_layer_cost Binary_crossentropy_<double>
-
-randomize_weights 1
+network2.input_layer  = &network2_in;
+network2.hidden_layer = {&network2_l1, &network2_l2, &network2_l3};
+network2.output_layer = &network2_out;
+network2.link();
+network2.randomize_weights(0);

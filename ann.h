@@ -27,14 +27,18 @@ struct ANN {
   std::vector<Layer_hidden<T>*> hidden_layer;
 
   ANN() {};
-  ANN(std::string file_path);
+
+  ANN(std::string file_path) {
+
+
+  }
 
   void set_normalization (std::vector<T> offset, std::vector<T> scaling) {
 
     input_layer->input_offset = offset;
     input_layer->input_scaling = scaling;
 
-  };
+  }
 
   void link() {
 
@@ -108,6 +112,8 @@ struct ANN {
     remove_precision(remove_start_precision_bits);
     forward();
   }
+
+
 };
 
 template<class T>
