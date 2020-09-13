@@ -1,3 +1,18 @@
+Network_input 10 1
+Network_output 1 Binary_crossentropy
+3
+Dense_layer 10 32 ReLU
+Dense_layer 32 32 ReLU
+Dense_layer 32 1 Sigmoid
+
+
+
+
+
+
+
+
+
 ANN <double> network2;
 
 Network_input  <double> network2_in  (10, 1);

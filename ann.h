@@ -30,6 +30,25 @@ struct ANN {
 
   ANN(std::string file_path) {
 
+    std::ifstream data_in(file_path);
+
+    std::string layer;
+    int in, out;
+
+    data_in >> layer;
+    data_in >> in;
+    data_in >> out;
+
+    if(layer == "Network_input") {
+
+ 
+    }
+
+
+
+
+
+
 
   }
 
