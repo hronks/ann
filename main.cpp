@@ -2,8 +2,9 @@
 
 int main() {
 
-  ANN_data <double> data("housepricedata.csv", 1, 0.7);
-  ANN network2("networks.dat");
+  ANN_data <double> data("housepricedata.csv", 1, 0.7, 10);
+
+//  ANN network2("networks.dat");
 
   // ANN network   =  load_network("network1.dat", 1);
   // ANN_training_output output; [output vectors for graphing]
@@ -16,31 +17,15 @@ int main() {
   Dense_layer    <double> l3  (32, 1,  & Sigmoid <double>);
   Network_output <double> out (1, & Binary_crossentropy <double>);
 
-  // set the normalization parameters <-- links to data function
+  // create the network, normalize, link and randomize_weights
 
-  in.input_offset   = Sample_mean <double> (data.data, 1, 10);
-  in.input_scaling  = Sample_sd   <double> (data.data, in.input_offset, 1, 10);
-
-  // link the layers
-
-  l1.input = & in.input;
-  l1.pass_back_inbox = & l2.pass_back_outbox;
-  l2.input = & l1.output;
-  l2.pass_back_inbox = & l3.pass_back_outbox;
-  l3.input = & l2.output;
-  l3.pass_back_inbox = & out.d_cost;
-  out.input = &l3.output;
-  out.actual = & in.output;
-
-  // create the network
-
-  ANN network;
+  ANN <double> network;
   network.input_layer  = &in;
   network.hidden_layer = {&l1, &l2, &l3};
   network.output_layer = &out;
-
-  // randomize_weights
-
+  network.set_normalization(Sample_mean <double> (data.data, 1, 10),
+                      Sample_sd <double> (data.data, in.input_offset, 1, 10));
+  network.link();
   network.randomize_weights(0);
 
   // create observables for training and validation
@@ -53,7 +38,7 @@ int main() {
 
   // run through epochs
 
-  for(int epoch = 0; epoch < 2; ++epoch) {
+  for(int epoch = 0; epoch < 1; ++epoch) {
 
     // train the network
 
@@ -61,28 +46,34 @@ int main() {
 
       // initiate data and pass forward
 
-      in.raw_input  = Pull_data <double> (data.data_train, i,  1, 10);
-      in.raw_output = Pull_data <double> (data.data_train, i, 11, 11);
+      network.pull_training_data(data, i);
+
+//      network.input_layer->raw_input  = Pull_data <double> (data.data_train, i,  1, 10);
+//      network.input_layer->raw_output = Pull_data <double> (data.data_train, i, 11, 11);
+
       network.run_epoch((DB_BITS*3)/4, 0.01);
 
-      if( (*out.input)[0] - (*out.actual)[0] <  0.5 &&
-          (*out.input)[0] - (*out.actual)[0] > -0.5) epoch_train_accuracy += (double) 1;
-      epoch_average_train_cost += out.cost;
+
+      if( (*network.output_layer->input)[0] - (*network.output_layer->actual)[0] <  0.5 &&
+          (*network.output_layer->input)[0] - (*network.output_layer->actual)[0] > -0.5) epoch_train_accuracy += (double) 1;
+      epoch_average_train_cost += network.output_layer->cost;
     }
+
+
 
     // calulcate validation error
 
     for(int i = 0; i < data.data_valid.size(); ++i) {
 
-      in.raw_input  = Pull_data <double> (data.data_valid, i,  1, 10);
-      in.raw_output = Pull_data <double> (data.data_valid, i, 11, 11);
-      network.predict();
+      network.input_layer->raw_input  = Pull_data <double> (data.data_valid, i,  1, 10);
+      network.input_layer->raw_output = Pull_data <double> (data.data_valid, i, 11, 11);
+      network.predict((DB_BITS*3)/4);
 
       // update validation epoch statistics
 
-      if( (*out.input)[0] - (*out.actual)[0] <  0.5 &&
-          (*out.input)[0] - (*out.actual)[0] > -0.5) epoch_valid_accuracy += (float) 1;
-      epoch_average_valid_cost += out.cost;
+      if( (*network.output_layer->input)[0] - (*network.output_layer->actual)[0] <  0.5 &&
+          (*network.output_layer->input)[0] - (*network.output_layer->actual)[0] > -0.5) epoch_valid_accuracy += (float) 1;
+      epoch_average_valid_cost += network.output_layer->cost;
     }
 
     // permute the training data

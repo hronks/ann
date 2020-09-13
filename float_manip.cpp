@@ -28,7 +28,10 @@ void remove_precision(double &d, int bits) {
 
   for(int i = 0; i < bits/8; ++i)
     ud.data[i] = 0;
-  ud.data[bits/8] = ud.data[bits/8] << (bits - ((bits/8)*8));
+  for(int i = 0; i < bits - ((bits/8)*8); ++i)
+    ud.data[bits/8] /= 2;
+
+//  ud.data[bits/8] = ud.data[bits/8] << (bits - ((bits/8)*8));
 
   d = ud.d;
 };

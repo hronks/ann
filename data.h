@@ -133,21 +133,24 @@ struct ANN_data {
   std::vector<std::vector<T>> data;
   std::vector<std::vector<T>> data_train;
   std::vector<std::vector<T>> data_valid;
+  int columns;
+  int xy_crossover;
 
   float training_proportion;
 
 
-  ANN_data(           std::string set_file_path,
-                      bool set_has_header,
-                      float set_training_proportion) {
+  ANN_data( std::string set_file_path, bool set_has_header,
+            float set_training_proportion, int set_xy_crossover) {
 
     file_path = set_file_path;
     has_header = set_has_header;
     training_proportion = set_training_proportion;
+    xy_crossover = set_xy_crossover;
 
-    int rows, columns;
+    int rows, set_columns;
 
-    CSV_scan <T> (file_path, has_header, rows, columns);
+    CSV_scan <T> (file_path, has_header, rows, set_columns);
+    columns = set_columns;
     CSV_load <T> (file_path, has_header, rows, columns, data);
     Random_split <T> (data, training_proportion, data_train, data_valid);
 
