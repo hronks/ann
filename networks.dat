@@ -1,28 +1,6 @@
 Network_input 10 1
-Network_output 1 Binary_crossentropy
 3
 Dense_layer 10 32 ReLU
 Dense_layer 32 32 ReLU
 Dense_layer 32 1 Sigmoid
-
-
-
-
-
-
-
-
-
-ANN <double> network2;
-
-Network_input  <double> network2_in  (10, 1);
-Dense_layer    <double> network2_l1  (10, 32, & ReLU    <double>);
-Dense_layer    <double> network2_l2  (32, 32, & ReLU    <double>);
-Dense_layer    <double> network2_l3  (32, 1,  & Sigmoid <double>);
-Network_output <double> network2_out (1, & Binary_crossentropy <double>);
-
-network2.input_layer  = &network2_in;
-network2.hidden_layer = {&network2_l1, &network2_l2, &network2_l3};
-network2.output_layer = &network2_out;
-network2.link();
-network2.randomize_weights(0);
+Network_output 1 Binary_crossentropy

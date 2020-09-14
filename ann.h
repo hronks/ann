@@ -12,12 +12,21 @@
 #include "maths.h"
 #include "data.h"
 #include "float_manip.h"
+#include "ANN_train_stats.h"
+
 #include "ann_routines.h"
 #include "main_routines.h"
+
+template <class T> struct ANN;
+template <class T> struct ANN_Layer_set;
 
 template <class T> struct Layer_hidden;
 template <class T> struct Layer_input;
 template <class T> struct Layer_output;
+
+template <class T> struct Network_input;
+template <class T> struct Network_output;
+template <class T> struct Dense_layer;
 
 template <class T>
 struct ANN {
@@ -28,27 +37,19 @@ struct ANN {
 
   ANN() {};
 
-  ANN(std::string file_path) {
+  ANN(ANN_Layer_set<T> & layers) {
 
-    std::ifstream data_in(file_path);
+    if(layers.order[0] == "NI")
+      input_layer  = & layers.input_layer_NI;
 
-    std::string layer;
-    int in, out;
-
-    data_in >> layer;
-    data_in >> in;
-    data_in >> out;
-
-    if(layer == "Network_input") {
-
- 
+    for(int i = 0; i < layers.hidden_layer_DL.size(); ++i) {
+      if(layers.order[i+1] == "DL")
+        hidden_layer.push_back(& layers.hidden_layer_DL[i]);
     }
-
-
-
-
-
-
+    if(layers.order[layers.order.size()-1] == "NO")
+      output_layer = & layers.output_layer_NO;
+    link();
+    randomize_weights(0);
 
   }
 
@@ -56,6 +57,15 @@ struct ANN {
 
     input_layer->input_offset = offset;
     input_layer->input_scaling = scaling;
+
+  }
+
+  void set_normalization_mean_sd (ANN_data <T> & data) {
+
+    std::vector<double> mu = Sample_mean <double> (data.data, 1, 10);
+    std::vector<double> sigma = Sample_sd <double> (data.data, mu, 1, 10);
+    set_normalization(mu,sigma);
+
 
   }
 
@@ -136,6 +146,71 @@ struct ANN {
 };
 
 template<class T>
+struct ANN_Layer_set {
+
+  std::vector<std::string> order;
+
+  Network_input<T>            input_layer_NI;
+  Network_output<T>           output_layer_NO;
+  std::vector<Dense_layer<T>> hidden_layer_DL;
+
+  ANN_Layer_set(std::string file_path) {
+
+    std::ifstream data_in(file_path);
+
+    std::string layer, function;
+    int in, out, n;
+
+    data_in >> layer;
+    data_in >> in;
+    data_in >> out;
+
+    if(layer == "Network_input") {
+
+      Network_input <T> temp(in, out);
+      input_layer_NI = temp;
+      order.push_back("NI");
+
+    }
+
+    data_in >> n;
+
+    for(int i = 0; i < n; ++i) {
+
+      data_in >> layer;
+      data_in >> in;
+      data_in >> out;
+      data_in >> function;
+
+      if(layer == "Dense_layer") {
+        if(function == "ReLU") {
+          Dense_layer <T> temp(in, out, & ReLU <T>);
+          hidden_layer_DL.push_back(temp);
+          order.push_back("DL");
+        }
+        if(function == "Sigmoid") {
+          Dense_layer <T> temp(in, out, & Sigmoid <T>);
+          hidden_layer_DL.push_back(temp);
+          order.push_back("DL");
+        }
+      }
+    }
+
+    data_in >> layer;
+    data_in >> in;
+    data_in >> function;
+
+    if(layer == "Network_output") {
+      if(function == "Binary_crossentropy") {
+        Network_output <T> temp(in, & Binary_crossentropy <T>);
+        output_layer_NO = temp;
+        order.push_back("NO");
+      }
+    }
+  }
+};
+
+template<class T>
 struct Layer_hidden {
 
   std::vector <T> *input;
@@ -166,7 +241,6 @@ struct Layer_input {
 
   virtual void normalize()                        {return;}
   virtual void remove_precision_li(int bits)      {return;}
-
 };
 
 template<class T>
@@ -192,6 +266,11 @@ struct Dense_layer: public Layer_hidden<T> {
   std::vector <T> d_output;
   std::vector <T> d_bias;
   std::vector <std::vector<T>> d_weight;
+
+  Dense_layer() {
+    Layer_hidden<T>::input = NULL;
+    Layer_hidden<T>::pass_back_inbox = NULL;
+  }
 
   Dense_layer(int inputs, int outputs, T (*funct)(T, int)) {
 
@@ -285,6 +364,13 @@ struct Network_output: public Layer_output<T> {
                           T & error,
                           std::vector <T> & diff );
 
+  Network_output() {
+
+    Layer_output<T>::input = NULL;
+    Layer_output<T>::actual = NULL;
+    cost_function = NULL;
+  }
+
   Network_output(int inputs, void (*funct)( const std::vector <T> &,
                                             const std::vector <T> &,
                                             T & error,
@@ -307,6 +393,8 @@ struct Network_output: public Layer_output<T> {
 template <class T>
 struct Network_input: public Layer_input<T> {
 
+  Network_input() {};
+
   Network_input(int inputs, int outputs) {
 
     Layer_input<T>::raw_input.resize(inputs, 0);
@@ -323,16 +411,11 @@ struct Network_input: public Layer_input<T> {
 
   void normalize() {
 
-    subtract(Layer_input<T>::raw_input,  Layer_input<T>::input_offset,  Layer_input<T>::input);
-    hadamard_recip(Layer_input<T>::input_scaling,  Layer_input<T>::input);
+    subtract(Layer_input<T>::raw_input, Layer_input<T>::input_offset, Layer_input<T>::input);
+    hadamard_recip(Layer_input<T>::input_scaling, Layer_input<T>::input);
 
     subtract(Layer_input<T>::raw_output, Layer_input<T>::output_offset, Layer_input<T>::output);
     hadamard_recip(Layer_input<T>::output_scaling, Layer_input<T>::output);
-
-    for(int i = 0; i < Layer_input<T>::input.size(); ++i) {
-      Layer_input<T>::input[i] = (float) Layer_input<T>::input[i];
-    }
-
   }
 
   void remove_precision_li(int bits) {
