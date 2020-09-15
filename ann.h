@@ -12,10 +12,6 @@
 #include "maths.h"
 #include "data.h"
 #include "float_manip.h"
-#include "ANN_train_stats.h"
-
-#include "ann_routines.h"
-#include "main_routines.h"
 
 template <class T> struct ANN;
 template <class T> struct ANN_Layer_set;
@@ -27,6 +23,10 @@ template <class T> struct Layer_output;
 template <class T> struct Network_input;
 template <class T> struct Network_output;
 template <class T> struct Dense_layer;
+
+#include "ann_train_stats.h"
+#include "ann_routines.h"
+#include "main_routines.h"
 
 template <class T>
 struct ANN {

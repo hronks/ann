@@ -2,22 +2,29 @@
 
 int main() {
 
-  ANN_data      <double> data("housepricedata.csv", 1, 0.7, 10);
+  ANN_data <double> data("housepricedata.csv", 1, 0.7, 10);
   ANN_Layer_set <double> layers("networks.dat");
-  ANN           <double> network(layers);
+  ANN <double> network(layers);
   network.set_normalization_mean_sd(data);
 
   // create observables for training and validation
 
   float epoch_average_train_cost = 0;
-  int epoch_train_accuracy = 0;
+  float epoch_train_accuracy = 0;
 
   float epoch_average_valid_cost = 0;
-  int epoch_valid_accuracy = 0;
+  float epoch_valid_accuracy = 0;
   std::ofstream graph_stream("output.csv");
 
+  std::cout<<data.data_train.size()<<"\n";
 
   for(int epoch = 0; epoch < 200; ++epoch) {
+
+    epoch_train_accuracy = 0;
+    epoch_valid_accuracy = 0;
+    epoch_average_train_cost = 0;
+    epoch_average_valid_cost = 0;
+
     for(int i = 0; i < data.data_train.size(); ++i) {
 
       network.pull_training_data(data, i);
@@ -43,10 +50,10 @@ int main() {
 
     permutation_random <double> (data.data_train);
 
-//    epoch_train_accuracy /(double) data.data_train.size();
+    epoch_train_accuracy /= (float) data.data_train.size();
     epoch_average_train_cost /= data.data_train.size();
 
-//    epoch_valid_accuracy /= (double) data.data_valid.size();
+    epoch_valid_accuracy /= (float) data.data_valid.size();
     epoch_average_valid_cost /= data.data_valid.size();
 
     std::cout<<"#"<<epoch<<"\t"<<epoch_average_train_cost<<", "<<epoch_train_accuracy<<"\t";
