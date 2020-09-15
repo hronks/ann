@@ -29,15 +29,51 @@ template <class T> struct Dense_layer;
 #include "main_routines.h"
 
 template <class T>
+struct ANN_wrap {
+
+  ANN_data <T> data;
+  ANN_Layer_set <T> layers;
+  ANN <T> network;
+  ANN_stats <T> stats;
+
+  ANN_wrap( std::string data_path,
+            bool data_has_header,
+            float training_proportion,
+            int input_columns,
+            std::string network_layer_path,
+            int precision_removal,
+            std::string output_path ) {
+
+    ANN_data <T> temp_data(data_path, data_has_header, training_proportion, input_columns);
+    data = temp_data;
+
+    ANN_Layer_set <T> temp_layers(network_layer_path);
+    layers = temp_layers;
+
+    ANN <T> temp_network(layers, precision_removal);
+    network = temp_network;
+    network.set_normalization_mean_sd(data);
+
+    ANN_stats <T> temp_stats(network, data, output_path);
+    stats = temp_stats;
+  }
+
+};
+
+template <class T>
 struct ANN {
 
   Layer_input<T>* input_layer;
   Layer_output<T>* output_layer;
   std::vector<Layer_hidden<T>*> hidden_layer;
 
+  int precision_removal;
+
   ANN() {};
 
-  ANN(ANN_Layer_set<T> & layers) {
+  ANN(ANN_Layer_set<T> & layers, int set_precision_removal) {
+
+    precision_removal = set_precision_removal;
 
     if(layers.order[0] == "NI")
       input_layer  = & layers.input_layer_NI;
@@ -62,8 +98,8 @@ struct ANN {
 
   void set_normalization_mean_sd (ANN_data <T> & data) {
 
-    std::vector<double> mu = Sample_mean <double> (data.data, 1, 10);
-    std::vector<double> sigma = Sample_sd <double> (data.data, mu, 1, 10);
+    std::vector<T> mu = Sample_mean <T> (data.data, 1, 10);
+    std::vector<T> sigma = Sample_sd <T> (data.data, mu, 1, 10);
     set_normalization(mu,sigma);
 
 
@@ -99,6 +135,14 @@ struct ANN {
       Pull_data <T> (data.data_train, row, data.xy_crossover + 1, data.columns);
   };
 
+  void pull_validation_data(ANN_data <T> & data, int row) {
+
+    input_layer->raw_input  =
+      Pull_data <T> (data.data_valid, row, 1, data.xy_crossover);
+    input_layer->raw_output =
+      Pull_data <T> (data.data_valid, row, data.xy_crossover + 1, data.columns);
+  };
+
   void normalize() {
     input_layer->normalize();
   };
@@ -125,20 +169,20 @@ struct ANN {
     }
   };
 
-  void run_epoch(int remove_start_precision_bits, float h) {
+  void run_training(float h) {
 
     normalize();
-    remove_precision(remove_start_precision_bits);
+    remove_precision(precision_removal);
     forward();
     backwards();
     learn(h);
     forward();
   };
 
-  void predict(int remove_start_precision_bits) {
+  void predict() {
 
     normalize();
-    remove_precision(remove_start_precision_bits);
+    remove_precision(precision_removal);
     forward();
   }
 
@@ -153,6 +197,8 @@ struct ANN_Layer_set {
   Network_input<T>            input_layer_NI;
   Network_output<T>           output_layer_NO;
   std::vector<Dense_layer<T>> hidden_layer_DL;
+
+  ANN_Layer_set() {};
 
   ANN_Layer_set(std::string file_path) {
 
@@ -178,7 +224,6 @@ struct ANN_Layer_set {
     for(int i = 0; i < n; ++i) {
 
       data_in >> layer;
-      data_in >> in;
       data_in >> out;
       data_in >> function;
 
@@ -193,11 +238,12 @@ struct ANN_Layer_set {
           hidden_layer_DL.push_back(temp);
           order.push_back("DL");
         }
+
+        in = out;
       }
     }
 
     data_in >> layer;
-    data_in >> in;
     data_in >> function;
 
     if(layer == "Network_output") {

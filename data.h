@@ -138,6 +138,7 @@ struct ANN_data {
 
   float training_proportion;
 
+  ANN_data() {};
 
   ANN_data( std::string set_file_path, bool set_has_header,
             float set_training_proportion, int set_xy_crossover) {
@@ -154,6 +155,10 @@ struct ANN_data {
     CSV_load <T> (file_path, has_header, rows, columns, data);
     Random_split <T> (data, training_proportion, data_train, data_valid);
 
+  }
+
+  void permute_training_data_random () {
+    permutation_random <T> (data_train);
   }
 
 };

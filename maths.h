@@ -291,17 +291,6 @@ void Binary_crossentropy( const std::vector <T> & operand,
       else diff[i] = -1;
     }
 
-//    else if(operand[i]  == 0) {
-//      error += 16.1;
-//      diff[i] = -10000000;
-//      std::cout<<"COST FUNCTION LIMIT 1";
-//    }
-//
-//    else if(operand[i]  == 1) {
-//      error += 25.3;
-//      diff[i] = 10000000;
-//      std::cout<<"COST FUNCTION LIMIT 2";
-//    }
 
     else {
 

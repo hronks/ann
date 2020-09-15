@@ -21,6 +21,21 @@ void print_bits(const double &d) {
   }
 }
 
+void remove_precision(long double &ld, int bits) {
+
+  u_ldouble uld;
+  uld.ld = ld;
+
+  for(int i = 0; i < bits/8; ++i)
+    uld.data[i] = 0;
+  for(int i = 0; i < bits - ((bits/8)*8); ++i)
+    uld.data[bits/8] /= 2;
+
+//  ud.data[bits/8] = ud.data[bits/8] << (bits - ((bits/8)*8));
+
+  ld = uld.ld;
+};
+
 void remove_precision(double &d, int bits) {
 
   u_double ud;
@@ -34,4 +49,19 @@ void remove_precision(double &d, int bits) {
 //  ud.data[bits/8] = ud.data[bits/8] << (bits - ((bits/8)*8));
 
   d = ud.d;
+};
+
+void remove_precision(float &f, int bits) {
+
+  u_float uf;
+  uf.f = f;
+
+  for(int i = 0; i < bits/8; ++i)
+    uf.data[i] = 0;
+  for(int i = 0; i < bits - ((bits/8)*8); ++i)
+    uf.data[bits/8] /= 2;
+
+//  ud.data[bits/8] = ud.data[bits/8] << (bits - ((bits/8)*8));
+
+  f = uf.f;
 };

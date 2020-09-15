@@ -1,6 +1,6 @@
 Network_input 10 1
 3
-Dense_layer 10 32 ReLU
-Dense_layer 32 32 ReLU
-Dense_layer 32 1 Sigmoid
-Network_output 1 Binary_crossentropy
+Dense_layer 32 ReLU
+Dense_layer 32 ReLU
+Dense_layer 1 Sigmoid
+Network_output Binary_crossentropy
