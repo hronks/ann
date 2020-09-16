@@ -1,0 +1,27 @@
+{
+  "name": "ann",
+  "version": "1.0.0",
+  "description": "app.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hronks/ann.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hronks/ann/issues"
+  },
+  "homepage": "https://github.com/hronks/ann#readme",
+  "gypfile": true,
+  "devDependencies": {
+    "node-gyp": "^7.1.0"
+  },
+  "dependencies": {
+    "node-addon-api": "^3.0.0"
+  }
+}

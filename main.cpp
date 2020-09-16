@@ -2,6 +2,7 @@
 
 int main() {
 
+
   ANN_wrap <double> wrap ("housepricedata.csv", 1, 0.7, 10,
                           "network_parameters.dat", DB_BITS*3/4,
                           "output.csv");
