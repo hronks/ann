@@ -100,8 +100,4 @@ struct ANN_stats {
 
   }
 
-
-
-
-
 };

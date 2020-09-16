@@ -58,6 +58,33 @@ struct ANN_wrap {
     stats = temp_stats;
   }
 
+  void run_epoch(T h) {
+
+    stats.reset_epoch_stats();
+
+    for(int i = 0; i < data.data_train.size(); ++i) {
+
+      network.pull_training_data(data, i);
+      network.run_training(h);
+      stats.get_training_stats_binary();
+    }
+
+    for(int i = 0; i < data.data_valid.size(); ++i) {
+
+      network.pull_validation_data(data, i);
+      network.predict();
+      stats.get_validation_stats_binary();
+    }
+
+    data.permute_training_data_random();
+    stats.calculate_epoch_stats();
+
+  }
+
+  void output_epoch_stats() {
+    stats.output_epoch_stats();
+  }
+
 };
 
 template <class T>
