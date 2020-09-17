@@ -1,4 +1,7 @@
-#include "ann.h"
+// g++ main.cpp main_routines.cpp maths.cpp float_manip.cpp
+// ./a
+
+#include "src/ann.h"
 
 int main() {
 
